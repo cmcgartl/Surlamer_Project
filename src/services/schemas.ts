@@ -62,3 +62,31 @@ export const TickerListResponseSchema = z.object({
   results: z.array(TickerSummarySchema).optional(),
   next_url: z.string().optional(),
 });
+
+// ---- Snapshot (GET /v2/snapshot/locale/us/markets/stocks/tickers/{T}) ----
+
+const BarSchema = z.object({
+  c: z.number().optional(),
+  o: z.number().optional(),
+  h: z.number().optional(),
+  l: z.number().optional(),
+  v: z.number().optional(),
+  vw: z.number().optional(),
+});
+
+export const SnapshotTickerSchema = z.object({
+  ticker: z.string().optional(),
+  todaysChange: z.number().optional(),
+  todaysChangePerc: z.number().optional(),
+  updated: z.number().optional(),
+  day: BarSchema.optional(),
+  prevDay: BarSchema.optional(),
+});
+
+export type SnapshotTicker = z.infer<typeof SnapshotTickerSchema>;
+
+export const SnapshotResponseSchema = z.object({
+  status: z.string(),
+  request_id: z.string().optional(),
+  ticker: SnapshotTickerSchema.optional(),
+});
