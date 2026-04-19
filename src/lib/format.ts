@@ -44,3 +44,17 @@ export function formatDate(value: string | number | null | undefined): string {
     year: "numeric",
   });
 }
+
+/**
+ * Polygon's `name` field appends share class and security type ("Alphabet Inc.
+ * Class A Common Stock"). Strip those suffixes so the identity band reads
+ * naturally — the ticker itself already tells you the class.
+ */
+export function formatCompanyName(name: string | null | undefined): string {
+  if (!name) return EMDASH;
+  return name
+    .replace(/\s+Class\s+[A-Z]\s+Common\s+Stock$/i, "")
+    .replace(/\s+Common\s+Stock$/i, "")
+    .replace(/\s+Class\s+[A-Z]$/i, "")
+    .trim();
+}

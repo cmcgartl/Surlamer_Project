@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { useMode } from "@/hooks/useMode";
 import { useSelectedTicker } from "@/hooks/useSelectedTicker";
+import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/workbench/SearchBar";
 import { Watchlist } from "@/components/workbench/Watchlist";
 import { SlotHeader } from "@/components/workbench/slots/SlotHeader";
@@ -10,52 +10,70 @@ import { SlotRelated } from "@/components/workbench/slots/SlotRelated";
 import { SlotNews } from "@/components/workbench/slots/SlotNews";
 
 /**
- * V3 workbench grid.
+ * Workbench composition (V4).
  *
- *   watchlist │  Header(0.5fr) │  Search (spans 2 cols)
- *             │  ──────────────┼──────────────┬──────────
- *             │                │  Graph       │
- *             │  Info          │──────────────│
- *             │  (col-span 2,  │  Related     │
- *             │   row-span 2)  │              │
- *             │  ──────────────┴──────────────┘
- *             │  News (spans all 3 cols)
+ *   Row 1:  [← Back to Explore | Search ========]   (back button only when researching)
+ *   Row 2:  [Identity band across full width ——————————————————————]
+ *   Row 3:  [Info (tall)        | Graph    ]
+ *                                [ Related ]
+ *   Row 4:  [News full width]
  *
- * Slots read state through hooks (useSelectedTicker / useMode) — no prop
- * drilling. Workbench is pure composition.
+ * Slots read state through hooks (useSelectedTicker) — no prop drilling.
+ * Workbench stays pure composition.
  */
 export function Workbench() {
-  const { ticker } = useSelectedTicker();
-  const mode = useMode();
+  const { ticker, setTicker } = useSelectedTicker();
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="border-b px-6 py-3">
-        <div className="flex items-center justify-between">
-          <Link to="/" className="font-semibold hover:underline">
-            ← Home
+    <div className="flex min-h-screen flex-col bg-muted">
+      <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
+        <div className="mx-auto flex h-12 max-w-[1400px] items-center justify-between px-6">
+          <Link
+            to="/"
+            className="flex items-center gap-1.5 text-sm font-semibold text-foreground hover:text-primary"
+          >
+            <span aria-hidden>←</span>
+            Home
           </Link>
-          <div className="font-mono text-xs text-muted-foreground">
-            mode: {mode}
-            {ticker ? ` · ${ticker}` : ""}
-          </div>
+          {ticker && (
+            <span className="rounded-full bg-primary/10 px-2 py-0.5 font-mono text-[11px] uppercase tracking-wide text-primary">
+              {ticker}
+            </span>
+          )}
         </div>
       </header>
 
-      <main className="flex-1 grid grid-cols-[280px_1fr] gap-4 p-4 max-w-[1400px] mx-auto w-full">
+      <main className="mx-auto grid w-full max-w-[1400px] flex-1 grid-cols-[280px_1fr] gap-4 p-4">
         <aside>
           <Watchlist />
         </aside>
 
-        <section className="grid gap-4 grid-cols-[0.5fr_0.5fr_1.15fr] grid-rows-[auto_auto_auto_auto]">
-          <SlotHeader className="col-start-1 row-start-1" />
-          <div className="col-start-2 col-end-4 row-start-1">
-            <SearchBar />
+        <section className="flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            {ticker && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setTicker(null)}
+                className="shrink-0"
+              >
+                ← Back to Explore
+              </Button>
+            )}
+            <div className="flex-1">
+              <SearchBar />
+            </div>
           </div>
-          <SlotInfo className="col-start-1 col-end-3 row-start-2 row-end-4" />
-          <SlotGraph className="col-start-3 row-start-2" />
-          <SlotRelated className="col-start-3 row-start-3" />
-          <SlotNews className="col-start-1 col-end-4 row-start-4" />
+
+          <SlotHeader />
+
+          <div className="grid grid-cols-[0.5fr_0.5fr_1.15fr] gap-4">
+            <SlotInfo className="col-start-1 col-end-3 row-start-1 row-span-2" />
+            <SlotGraph className="col-start-3 row-start-1" />
+            <SlotRelated className="col-start-3 row-start-2" />
+          </div>
+
+          <SlotNews />
         </section>
       </main>
     </div>

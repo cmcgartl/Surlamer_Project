@@ -1,21 +1,21 @@
 import { Button } from "@/components/ui/button";
 import { useSelectedTicker } from "@/hooks/useSelectedTicker";
-import { useTopMovers } from "@/hooks/useTopMovers";
+import { useFeaturedTickers } from "@/hooks/useFeaturedTickers";
 import { formatCurrency, formatPercent, formatVolume } from "@/lib/format";
 import type { SnapshotTicker } from "@/services/schemas";
 
 /**
- * Exploration-mode info panel. Today's top gainers as a dense, clickable list.
+ * Exploration-mode info panel. Featured large-caps as a dense, clickable list.
  * Each row jumps to research mode on click.
  */
 export function TopMoversList() {
-  const { data, isLoading, isError, refetch } = useTopMovers();
+  const { data, isLoading, isError, refetch } = useFeaturedTickers();
 
   return (
     <div className="space-y-3">
       <div>
         <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          Today's top gainers
+          Featured companies
         </h3>
         <p className="mt-1 text-xs text-muted-foreground">
           Click a row to research a stock.
@@ -26,7 +26,9 @@ export function TopMoversList() {
 
       {isError && (
         <div className="space-y-2 py-2">
-          <p className="text-sm text-destructive">Couldn't load top movers.</p>
+          <p className="text-sm text-destructive">
+            Couldn't load featured tickers.
+          </p>
           <Button variant="outline" size="sm" onClick={() => refetch()}>
             Retry
           </Button>
@@ -35,13 +37,13 @@ export function TopMoversList() {
 
       {!isLoading && !isError && (!data || data.length === 0) && (
         <p className="py-4 text-sm text-muted-foreground">
-          No movers available right now.
+          No tickers available right now.
         </p>
       )}
 
       {!isLoading && !isError && data && data.length > 0 && (
         <ul className="divide-y">
-          {data.slice(0, 10).map((snap) => (
+          {data.slice(0, 10).map((snap: SnapshotTicker) => (
             <MoverRow key={snap.ticker ?? Math.random()} snap={snap} />
           ))}
         </ul>
@@ -61,8 +63,8 @@ function MoverRow({ snap }: { snap: SnapshotTicker }) {
     change == null
       ? "text-muted-foreground"
       : change >= 0
-        ? "text-emerald-600"
-        : "text-red-600";
+        ? "text-positive"
+        : "text-negative";
 
   return (
     <li>

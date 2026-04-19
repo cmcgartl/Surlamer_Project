@@ -53,7 +53,9 @@ export function StockInfoGrid({ ticker }: { ticker: string }) {
         loading={snapshot.isLoading}
       />
       <CompanySection detail={details.data} />
-      <SectorAbout detail={details.data} />
+      {details.data.homepage_url && (
+        <HomepageLink url={details.data.homepage_url} />
+      )}
     </div>
   );
 }
@@ -83,8 +85,8 @@ function PriceBlock({
     change == null
       ? "text-muted-foreground"
       : change >= 0
-        ? "text-emerald-600"
-        : "text-red-600";
+        ? "text-positive"
+        : "text-negative";
 
   const changeStr =
     change == null
@@ -143,33 +145,16 @@ function CompanySection({ detail }: { detail: TickerDetail }) {
   );
 }
 
-function SectorAbout({ detail }: { detail: TickerDetail }) {
+function HomepageLink({ url }: { url: string }) {
   return (
-    <div className="space-y-3">
-      {detail.sic_description && (
-        <p className="text-xs uppercase tracking-wide text-muted-foreground">
-          {detail.sic_description}
-        </p>
-      )}
-      {detail.description && (
-        <div>
-          <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1">
-            About
-          </h3>
-          <p className="text-sm leading-relaxed">{detail.description}</p>
-        </div>
-      )}
-      {detail.homepage_url && (
-        <a
-          href={detail.homepage_url}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-1 text-sm text-foreground hover:underline"
-        >
-          {cleanUrl(detail.homepage_url)} ↗
-        </a>
-      )}
-    </div>
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      className="inline-flex items-center gap-1 text-sm text-foreground hover:underline"
+    >
+      {cleanUrl(url)} ↗
+    </a>
   );
 }
 
@@ -181,11 +166,9 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="space-y-2">
-      <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-        {title}
-      </h3>
-      <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">{children}</div>
+    <div className="space-y-3">
+      <h3 className="text-base font-semibold">{title}</h3>
+      <div className="grid grid-cols-2 gap-x-6 gap-y-3">{children}</div>
     </div>
   );
 }
@@ -193,7 +176,7 @@ function Section({
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="text-sm text-muted-foreground">{label}:</div>
       <div className="font-medium tabular-nums">{value}</div>
     </div>
   );
@@ -216,11 +199,6 @@ function InfoSkeleton() {
       </div>
       <GridSkeleton rows={3} />
       <GridSkeleton rows={3} />
-      <div className="space-y-1.5">
-        <div className="h-3 w-full bg-muted rounded animate-pulse" />
-        <div className="h-3 w-[95%] bg-muted rounded animate-pulse" />
-        <div className="h-3 w-[88%] bg-muted rounded animate-pulse" />
-      </div>
     </div>
   );
 }

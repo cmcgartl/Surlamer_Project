@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 
 export interface CarouselItem {
   id: string;
@@ -50,14 +49,17 @@ export function HeroCarousel({
     >
       <div className="mb-3 flex gap-2">
         {items.map((item, i) => (
-          <Button
+          <button
             key={item.id}
-            variant={i === active ? "default" : "outline"}
-            size="sm"
             onClick={() => setActive(i)}
+            className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+              i === active
+                ? "bg-foreground text-background"
+                : "bg-secondary text-muted-foreground hover:bg-accent"
+            }`}
           >
             {item.label}
-          </Button>
+          </button>
         ))}
       </div>
       <div>{items[active].content}</div>

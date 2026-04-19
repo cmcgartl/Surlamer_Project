@@ -1,14 +1,12 @@
-import { Card } from "@/components/ui/card";
-
 /**
  * Hero carousel slide 2 — per-ticker news preview with sentiment tags.
  * Static mock content.
  */
 export function TickerNewsCard() {
   return (
-    <Card className="p-5">
-      <div className="mb-3 flex items-center justify-between">
-        <div className="text-xs uppercase tracking-wide text-muted-foreground">
+    <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+      <div className="mb-4 flex items-center justify-between">
+        <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
           News · AAPL
         </div>
         <div className="font-mono text-xs text-muted-foreground">3 headlines</div>
@@ -34,7 +32,7 @@ export function TickerNewsCard() {
           sentiment="negative"
         />
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -49,13 +47,21 @@ function Article({
   time: string;
   sentiment: "positive" | "neutral" | "negative";
 }) {
+  const toneMap = {
+    positive: "bg-positive-soft text-positive",
+    neutral: "bg-signal-neutral-soft text-signal-neutral",
+    negative: "bg-negative-soft text-negative",
+  } as const;
+
   return (
     <div className="flex items-start gap-3">
-      <span className="shrink-0 text-[10px] uppercase tracking-wide">
-        [{sentiment}]
+      <span
+        className={`mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${toneMap[sentiment]}`}
+      >
+        {sentiment}
       </span>
-      <div>
-        <div className="text-sm font-medium">{title}</div>
+      <div className="min-w-0">
+        <div className="line-clamp-1 text-sm font-medium">{title}</div>
         <div className="mt-0.5 text-xs text-muted-foreground">
           {publisher} · {time}
         </div>

@@ -1,8 +1,6 @@
-import { Card } from "@/components/ui/card";
-
 /**
- * Hero carousel slide 3 — chart preview. Bare SVG sparkline for the
- * skeleton; styling + polish in the theming commit.
+ * Hero carousel slide 3 — chart preview. Inline SVG sparkline uses the primary
+ * accent color directly so it pairs with the gradient headline.
  */
 export function ChartCard() {
   const points = SYNTHETIC_POINTS;
@@ -20,19 +18,20 @@ export function ChartCard() {
       return `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`;
     })
     .join(" ");
+  const fill = `${path} L${w},${h} L0,${h} Z`;
 
   return (
-    <Card className="p-5">
-      <div className="mb-3 flex items-start justify-between">
+    <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+      <div className="mb-4 flex items-start justify-between">
         <div>
-          <div className="text-xs uppercase tracking-wide text-muted-foreground">
+          <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             Price · 30 days
           </div>
           <div className="mt-0.5 font-semibold">AAPL</div>
         </div>
         <div className="text-right">
-          <div className="text-lg font-semibold">$189.23</div>
-          <div className="text-xs text-muted-foreground">+3.4% mo.</div>
+          <div className="text-lg font-semibold tabular-nums">$189.23</div>
+          <div className="text-xs text-positive tabular-nums">+3.4% mo.</div>
         </div>
       </div>
 
@@ -42,19 +41,28 @@ export function ChartCard() {
         preserveAspectRatio="none"
         aria-hidden
       >
+        <defs>
+          <linearGradient id="spark-fill" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor="#5B5BF0" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="#5B5BF0" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <path d={fill} fill="url(#spark-fill)" />
         <path
           d={path}
           fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
+          stroke="#5B5BF0"
+          strokeWidth="2"
+          strokeLinejoin="round"
+          strokeLinecap="round"
         />
       </svg>
 
-      <div className="mt-3 flex justify-between text-[10px] text-muted-foreground">
+      <div className="mt-3 flex justify-between font-mono text-[10px] text-muted-foreground">
         <span>30d ago</span>
         <span>today</span>
       </div>
-    </Card>
+    </div>
   );
 }
 

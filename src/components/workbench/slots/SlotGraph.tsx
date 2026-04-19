@@ -22,7 +22,7 @@ export function SlotGraph({ className = "" }: { className?: string }) {
   const chartTicker = ticker ?? "SPY";
 
   return (
-    <Card className={`p-4 ${className}`}>
+    <Card className={`flex flex-col overflow-hidden p-0 ${className}`}>
       <Graph ticker={chartTicker} range="30d" />
     </Card>
   );
@@ -35,45 +35,49 @@ function Graph({ ticker, range }: { ticker: string; range: TimeRange }) {
   );
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold">Price</h3>
+    <>
+      <div className="flex items-center justify-between border-b border-border p-4">
+        <h3 className="text-base font-semibold">Price</h3>
         <span className="font-mono text-xs text-muted-foreground">
           {ticker} · {range}
         </span>
       </div>
 
-      {isLoading && (
-        <div className="h-48 animate-pulse rounded bg-muted/60" />
-      )}
+      <div className="p-4">
+        {isLoading && (
+          <div className="h-48 animate-pulse rounded bg-muted/60" />
+        )}
 
-      {isError && (
-        <div className="space-y-2 py-4">
-          <p className="text-sm text-destructive">Couldn't load chart data.</p>
-          <Button variant="outline" size="sm" onClick={() => refetch()}>
-            Retry
-          </Button>
-        </div>
-      )}
+        {isError && (
+          <div className="space-y-2 py-4">
+            <p className="text-sm text-destructive">
+              Couldn't load chart data.
+            </p>
+            <Button variant="outline" size="sm" onClick={() => refetch()}>
+              Retry
+            </Button>
+          </div>
+        )}
 
-      {!isLoading && !isError && data && data.length < 2 && (
-        <InsufficientDataFallback ticker={ticker} bars={data} />
-      )}
+        {!isLoading && !isError && data && data.length < 2 && (
+          <InsufficientDataFallback ticker={ticker} bars={data} />
+        )}
 
-      {!isLoading && !isError && data && data.length >= 2 && (
-        <AreaChart
-          data={toChartData(data)}
-          index="date"
-          categories={["Close"]}
-          colors={["indigo"]}
-          valueFormatter={(v) => formatCurrency(v)}
-          showLegend={false}
-          showAnimation
-          yAxisWidth={64}
-          className="h-48"
-        />
-      )}
-    </div>
+        {!isLoading && !isError && data && data.length >= 2 && (
+          <AreaChart
+            data={toChartData(data)}
+            index="date"
+            categories={["Close"]}
+            colors={["indigo"]}
+            valueFormatter={(v) => formatCurrency(v)}
+            showLegend={false}
+            showAnimation
+            yAxisWidth={64}
+            className="h-48"
+          />
+        )}
+      </div>
+    </>
   );
 }
 

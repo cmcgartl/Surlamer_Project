@@ -12,9 +12,16 @@ import type { NewsArticle, NewsSentiment } from "@/services/schemas";
  */
 export function SlotNews({ className = "" }: { className?: string }) {
   const { ticker } = useSelectedTicker();
+  const title = ticker ? `News · ${ticker}` : "News";
+
   return (
-    <Card className={`p-4 ${className}`}>
-      <NewsFeed ticker={ticker ?? undefined} />
+    <Card className={`flex flex-col overflow-hidden p-0 ${className}`}>
+      <div className="border-b border-border p-4">
+        <h3 className="text-base font-semibold">{title}</h3>
+      </div>
+      <div className="p-4">
+        <NewsFeed ticker={ticker ?? undefined} />
+      </div>
     </Card>
   );
 }
@@ -22,42 +29,38 @@ export function SlotNews({ className = "" }: { className?: string }) {
 function NewsFeed({ ticker }: { ticker?: string }) {
   const { data, isLoading, isError, refetch } = useTickerNews(ticker);
 
-  const title = ticker ? `News · ${ticker}` : "Market news";
+  if (isLoading) return <NewsSkeleton />;
+
+  if (isError) {
+    return (
+      <div className="space-y-2 py-2">
+        <p className="text-sm text-destructive">Couldn't load news.</p>
+        <Button variant="outline" size="sm" onClick={() => refetch()}>
+          Retry
+        </Button>
+      </div>
+    );
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <p className="py-4 text-sm text-muted-foreground">
+        {ticker
+          ? `No recent news for ${ticker}.`
+          : "No market news right now."}
+      </p>
+    );
+  }
 
   return (
-    <div className="space-y-3">
-      <h3 className="text-sm font-semibold">{title}</h3>
-
-      {isLoading && <NewsSkeleton />}
-
-      {isError && (
-        <div className="space-y-2 py-2">
-          <p className="text-sm text-destructive">Couldn't load news.</p>
-          <Button variant="outline" size="sm" onClick={() => refetch()}>
-            Retry
-          </Button>
-        </div>
-      )}
-
-      {!isLoading && !isError && data && data.length === 0 && (
-        <p className="py-4 text-sm text-muted-foreground">
-          {ticker
-            ? `No recent news for ${ticker}.`
-            : "No market news right now."}
-        </p>
-      )}
-
-      {!isLoading && !isError && data && data.length > 0 && (
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-          {data.slice(0, 6).map((article) => (
-            <ArticleCard
-              key={article.id}
-              article={article}
-              focusTicker={ticker}
-            />
-          ))}
-        </div>
-      )}
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+      {data.slice(0, 6).map((article) => (
+        <ArticleCard
+          key={article.id}
+          article={article}
+          focusTicker={ticker}
+        />
+      ))}
     </div>
   );
 }
@@ -76,7 +79,7 @@ function ArticleCard({
       href={article.article_url}
       target="_blank"
       rel="noreferrer"
-      className="group flex flex-col overflow-hidden rounded-md border transition-colors hover:bg-accent"
+      className="hover-lift group flex flex-col overflow-hidden rounded-md border border-border bg-card"
     >
       {article.image_url && (
         <img
@@ -111,10 +114,10 @@ function SentimentBadge({ sentiment }: { sentiment: NewsSentiment }) {
   const label = sentiment[0].toUpperCase() + sentiment.slice(1);
   const tone =
     sentiment === "positive"
-      ? "bg-emerald-100 text-emerald-900"
+      ? "bg-positive-soft text-positive"
       : sentiment === "negative"
-        ? "bg-red-100 text-red-900"
-        : "bg-muted text-muted-foreground";
+        ? "bg-negative-soft text-negative"
+        : "bg-signal-neutral-soft text-signal-neutral";
   return (
     <span
       className={`inline-flex w-fit items-center rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${tone}`}

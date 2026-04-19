@@ -4,6 +4,9 @@ import { Card } from "@/components/ui/card";
 import { useDebounce } from "@/lib/useDebounce";
 import { useSearchTickers } from "@/hooks/useSearchTickers";
 import { useSelectedTicker } from "@/hooks/useSelectedTicker";
+import { formatCompanyName } from "@/lib/format";
+
+const MAX_RESULTS = 10;
 
 export function SearchBar() {
   const [query, setQuery] = useState("");
@@ -20,7 +23,7 @@ export function SearchBar() {
   };
 
   return (
-    <div className="space-y-2">
+    <div className="relative">
       <Input
         value={query}
         onChange={(e) => setQuery(e.target.value)}
@@ -28,7 +31,7 @@ export function SearchBar() {
       />
 
       {showPanel && (
-        <Card className="p-2 text-sm">
+        <Card className="absolute inset-x-0 top-full z-30 mt-2 max-h-96 overflow-y-auto p-2 text-sm shadow-lg">
           {isLoading && (
             <div className="px-2 py-1.5 text-muted-foreground">Searching…</div>
           )}
@@ -47,15 +50,15 @@ export function SearchBar() {
 
           {!isLoading && !isError && results && results.length > 0 && (
             <ul>
-              {results.map((r) => (
+              {results.slice(0, MAX_RESULTS).map((r) => (
                 <li key={r.ticker}>
                   <button
                     onClick={() => handleSelect(r.ticker)}
-                    className="w-full grid grid-cols-[80px_1fr_auto] items-center gap-3 rounded px-2 py-1.5 text-left hover:bg-accent"
+                    className="grid w-full grid-cols-[80px_1fr_auto] items-center gap-3 rounded px-2 py-1.5 text-left hover:bg-accent"
                   >
                     <span className="font-mono font-semibold">{r.ticker}</span>
                     <span className="truncate text-muted-foreground">
-                      {r.name}
+                      {formatCompanyName(r.name)}
                     </span>
                     {r.type && (
                       <span className="font-mono text-xs text-muted-foreground">
