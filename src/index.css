@@ -140,10 +140,10 @@
     box-shadow: 0 8px 20px -12px rgba(17, 24, 39, 0.15);
     border-color: #D1D5DB;
   }
-  /* Card title bars — slightly deeper blue than the body gradient so
-     header blocks read as a distinct layer above their card body. */
+  /* Card title bars — more saturated blue than the body gradient so
+     header blocks read as a distinct, vivid layer above their card body. */
   .bg-card-header {
-    background: linear-gradient(180deg, #D6E7FC 0%, #B5CFF6 100%);
+    background: linear-gradient(180deg, #BFDBFE 0%, #93C5FD 100%);
   }
   /* Subtle white→blue wash applied to the landing hero and the workbench
      page. Intentionally not on body — other landing sections stay crisp white.
