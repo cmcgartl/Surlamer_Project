@@ -90,3 +90,27 @@ export const SnapshotResponseSchema = z.object({
   request_id: z.string().optional(),
   ticker: SnapshotTickerSchema.optional(),
 });
+
+// ---- Aggregates (GET /v2/aggs/ticker/{T}/range/{mult}/{timespan}/{from}/{to}) ----
+
+export const AggregateBarSchema = z.object({
+  c: z.number(),
+  h: z.number(),
+  l: z.number(),
+  o: z.number(),
+  t: z.number(),
+  v: z.number(),
+  vw: z.number().optional(),
+  n: z.number().optional(),
+});
+
+export type AggregateBar = z.infer<typeof AggregateBarSchema>;
+
+export const AggregatesResponseSchema = z.object({
+  ticker: z.string(),
+  status: z.string(),
+  queryCount: z.number().optional(),
+  resultsCount: z.number().optional(),
+  adjusted: z.boolean().optional(),
+  results: z.array(AggregateBarSchema).optional(),
+});
