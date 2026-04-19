@@ -1,31 +1,156 @@
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useSelectedTicker } from "@/hooks/useSelectedTicker";
+import { useTickerNews } from "@/hooks/useTickerNews";
+import { formatDate } from "@/lib/format";
+import type { NewsArticle, NewsSentiment } from "@/services/schemas";
 
 /**
- * Pattern B — parameter-driven. With a ticker: ticker-filtered news; without:
- * general market news. Full-width bottom row in the V3 grid.
- *
- * Data wiring (useTickerNews) lands in a later commit.
+ * Pattern B — parameter-driven. Same inner NewsFeed, different ticker arg.
+ * Research: ticker-filtered news. Exploration: general market news.
+ * Full-width bottom row in the V3 grid.
  */
 export function SlotNews({ className = "" }: { className?: string }) {
   const { ticker } = useSelectedTicker();
+  return (
+    <Card className={`p-4 ${className}`}>
+      <NewsFeed ticker={ticker ?? undefined} />
+    </Card>
+  );
+}
+
+function NewsFeed({ ticker }: { ticker?: string }) {
+  const { data, isLoading, isError, refetch } = useTickerNews(ticker);
+
   const title = ticker ? `News · ${ticker}` : "Market news";
 
   return (
-    <Card className={`p-4 ${className}`}>
-      <h3 className="text-sm font-semibold mb-3">{title}</h3>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div
-            key={i}
-            className="space-y-2 rounded border border-dashed border-muted-foreground/20 p-3"
-          >
-            <div className="h-3 w-24 bg-muted/60 rounded" />
-            <div className="h-4 w-full bg-muted/60 rounded" />
-            <div className="h-3 w-3/4 bg-muted/60 rounded" />
-          </div>
-        ))}
+    <div className="space-y-3">
+      <h3 className="text-sm font-semibold">{title}</h3>
+
+      {isLoading && <NewsSkeleton />}
+
+      {isError && (
+        <div className="space-y-2 py-2">
+          <p className="text-sm text-destructive">Couldn't load news.</p>
+          <Button variant="outline" size="sm" onClick={() => refetch()}>
+            Retry
+          </Button>
+        </div>
+      )}
+
+      {!isLoading && !isError && data && data.length === 0 && (
+        <p className="py-4 text-sm text-muted-foreground">
+          {ticker
+            ? `No recent news for ${ticker}.`
+            : "No market news right now."}
+        </p>
+      )}
+
+      {!isLoading && !isError && data && data.length > 0 && (
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+          {data.slice(0, 6).map((article) => (
+            <ArticleCard
+              key={article.id}
+              article={article}
+              focusTicker={ticker}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ArticleCard({
+  article,
+  focusTicker,
+}: {
+  article: NewsArticle;
+  focusTicker?: string;
+}) {
+  const sentiment = pickSentiment(article, focusTicker);
+
+  return (
+    <a
+      href={article.article_url}
+      target="_blank"
+      rel="noreferrer"
+      className="group flex flex-col overflow-hidden rounded-md border transition-colors hover:bg-accent"
+    >
+      {article.image_url && (
+        <img
+          src={article.image_url}
+          alt=""
+          loading="lazy"
+          className="aspect-[16/9] w-full object-cover"
+        />
+      )}
+      <div className="flex flex-1 flex-col gap-2 p-3">
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span className="truncate">{article.publisher.name}</span>
+          <span className="shrink-0 tabular-nums">
+            {formatDate(article.published_utc)}
+          </span>
+        </div>
+        <h4 className="line-clamp-2 text-sm font-medium leading-snug group-hover:underline">
+          {article.title}
+        </h4>
+        {article.description && (
+          <p className="line-clamp-2 text-xs text-muted-foreground">
+            {article.description}
+          </p>
+        )}
+        {sentiment && <SentimentBadge sentiment={sentiment} />}
       </div>
-    </Card>
+    </a>
+  );
+}
+
+function SentimentBadge({ sentiment }: { sentiment: NewsSentiment }) {
+  const label = sentiment[0].toUpperCase() + sentiment.slice(1);
+  const tone =
+    sentiment === "positive"
+      ? "bg-emerald-100 text-emerald-900"
+      : sentiment === "negative"
+        ? "bg-red-100 text-red-900"
+        : "bg-muted text-muted-foreground";
+  return (
+    <span
+      className={`inline-flex w-fit items-center rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${tone}`}
+    >
+      {label}
+    </span>
+  );
+}
+
+function pickSentiment(
+  article: NewsArticle,
+  focusTicker?: string
+): NewsSentiment | null {
+  const insights = article.insights;
+  if (!insights?.length) return null;
+  if (focusTicker) {
+    const match = insights.find((i) => i.ticker === focusTicker);
+    if (match) return match.sentiment;
+  }
+  return insights[0].sentiment;
+}
+
+function NewsSkeleton() {
+  return (
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div key={i} className="space-y-2 rounded-md border p-3">
+          <div className="aspect-[16/9] w-full animate-pulse rounded bg-muted/60" />
+          <div className="flex items-center justify-between">
+            <div className="h-3 w-20 animate-pulse rounded bg-muted/60" />
+            <div className="h-3 w-14 animate-pulse rounded bg-muted/60" />
+          </div>
+          <div className="h-4 w-full animate-pulse rounded bg-muted/60" />
+          <div className="h-3 w-5/6 animate-pulse rounded bg-muted/60" />
+        </div>
+      ))}
+    </div>
   );
 }

@@ -114,3 +114,71 @@ export const AggregatesResponseSchema = z.object({
   adjusted: z.boolean().optional(),
   results: z.array(AggregateBarSchema).optional(),
 });
+
+// ---- News (GET /v2/reference/news) ----
+
+export const NewsSentimentSchema = z.enum([
+  "positive",
+  "neutral",
+  "negative",
+]);
+
+export type NewsSentiment = z.infer<typeof NewsSentimentSchema>;
+
+export const NewsInsightSchema = z.object({
+  sentiment: NewsSentimentSchema,
+  sentiment_reasoning: z.string().optional(),
+  ticker: z.string(),
+});
+
+export const NewsPublisherSchema = z.object({
+  name: z.string(),
+  logo_url: z.string().optional(),
+  homepage_url: z.string().optional(),
+  favicon_url: z.string().optional(),
+});
+
+export const NewsArticleSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  article_url: z.string(),
+  description: z.string().optional(),
+  image_url: z.string().optional(),
+  published_utc: z.string(),
+  author: z.string().optional(),
+  publisher: NewsPublisherSchema,
+  tickers: z.array(z.string()).optional(),
+  insights: z.array(NewsInsightSchema).optional(),
+});
+
+export type NewsArticle = z.infer<typeof NewsArticleSchema>;
+
+export const NewsResponseSchema = z.object({
+  status: z.string().optional(),
+  count: z.number().optional(),
+  request_id: z.string().optional(),
+  results: z.array(NewsArticleSchema).optional(),
+  next_url: z.string().optional(),
+});
+
+// ---- Related Companies (GET /v1/related-companies/{T}) ----
+
+export const RelatedCompanyEntrySchema = z.object({
+  ticker: z.string(),
+});
+
+export const RelatedCompaniesResponseSchema = z.object({
+  status: z.string().optional(),
+  ticker: z.string().optional(),
+  request_id: z.string().optional(),
+  results: z.array(RelatedCompanyEntrySchema).optional(),
+});
+
+// ---- Bulk Snapshots + Direction (gainers/losers) ----
+// Same response shape: { status, tickers: [SnapshotTicker, ...] }
+
+export const SnapshotTickersResponseSchema = z.object({
+  status: z.string(),
+  count: z.number().optional(),
+  tickers: z.array(SnapshotTickerSchema).optional(),
+});

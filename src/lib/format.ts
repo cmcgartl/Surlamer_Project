@@ -33,3 +33,14 @@ export function formatNumber(value: number | null | undefined): string {
   if (value == null || !Number.isFinite(value)) return EMDASH;
   return value.toLocaleString();
 }
+
+export function formatDate(value: string | number | null | undefined): string {
+  if (value == null) return EMDASH;
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return EMDASH;
+  return d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
