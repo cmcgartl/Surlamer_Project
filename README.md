@@ -137,9 +137,4 @@ Missing thumbnails for news data are checked for and handled, but missing thumbn
 **Workbench search is ticker-prefix only**
 The search functionality currently only supports ticker-based searching. Because of this, searching for "apple" will not provide any results.
 
-
-**FIXED: Market data shows zero outside market hours**
-Daily market/equity data shows zero when the market is closed, instead of a more informative fallback. This was missed due to development during open market hours.
-
-
 ---
