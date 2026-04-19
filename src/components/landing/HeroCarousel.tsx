@@ -54,15 +54,17 @@ export function HeroCarousel({
             onClick={() => setActive(i)}
             className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
               i === active
-                ? "bg-foreground text-background"
-                : "bg-secondary text-muted-foreground hover:bg-accent"
+                ? "bg-primary text-primary-foreground"
+                : "bg-primary/10 text-primary hover:bg-primary/20"
             }`}
           >
             {item.label}
           </button>
         ))}
       </div>
-      <div>{items[active].content}</div>
+      {/* Fixed min-height prevents the hero layout from jumping as slides
+          with different content heights rotate in. */}
+      <div className="min-h-[420px]">{items[active].content}</div>
     </div>
   );
 }

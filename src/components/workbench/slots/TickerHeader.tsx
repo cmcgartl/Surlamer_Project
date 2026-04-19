@@ -34,7 +34,7 @@ export function TickerHeader({ ticker }: { ticker: string }) {
         )}
       </div>
       <Button
-        variant={inWatchlist ? "outline" : "default"}
+        variant={inWatchlist ? "destructive" : "default"}
         size="sm"
         onClick={() => (inWatchlist ? remove(ticker) : add(ticker))}
         className="shrink-0"

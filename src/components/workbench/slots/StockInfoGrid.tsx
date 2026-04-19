@@ -25,11 +25,17 @@ export function StockInfoGrid({ ticker }: { ticker: string }) {
   const details = useTickerDetails(ticker);
   const snapshot = useTickerSnapshot(ticker);
 
-  if (details.isLoading) return <InfoSkeleton />;
+  if (details.isLoading) {
+    return (
+      <div className="p-4">
+        <InfoSkeleton />
+      </div>
+    );
+  }
 
   if (details.isError) {
     return (
-      <div className="space-y-2">
+      <div className="space-y-2 p-4">
         <p className="text-sm text-destructive">
           Couldn't load details for {ticker}.
         </p>
@@ -43,7 +49,7 @@ export function StockInfoGrid({ ticker }: { ticker: string }) {
   if (!details.data) return null;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4">
       <PriceBlock
         snapshot={snapshot.data ?? null}
         loading={snapshot.isLoading}

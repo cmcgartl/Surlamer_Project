@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useDebounce } from "@/lib/useDebounce";
@@ -9,6 +9,7 @@ import { formatCompanyName } from "@/lib/format";
 const MAX_RESULTS = 10;
 
 export function SearchBar() {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 300);
   const { setTicker } = useSelectedTicker();
@@ -22,12 +23,36 @@ export function SearchBar() {
     setQuery("");
   };
 
+  // Dismiss dropdown on Escape or click outside the search container.
+  useEffect(() => {
+    if (!showPanel) return;
+    const dismiss = () => setQuery("");
+    const handleMouseDown = (e: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        dismiss();
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") dismiss();
+    };
+    document.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [showPanel]);
+
   return (
-    <div className="relative">
+    <div ref={containerRef} className="relative">
       <Input
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search tickers (e.g., AAPL)"
+        className="bg-card shadow-sm"
       />
 
       {showPanel && (

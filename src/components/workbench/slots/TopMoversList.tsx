@@ -5,50 +5,51 @@ import { formatCurrency, formatPercent, formatVolume } from "@/lib/format";
 import type { SnapshotTicker } from "@/services/schemas";
 
 /**
- * Exploration-mode info panel. Featured large-caps as a dense, clickable list.
- * Each row jumps to research mode on click.
+ * Exploration-mode info panel. Bordered header + dense, clickable list of
+ * featured large-caps. Matches the header idiom of SlotGraph / SlotRelated /
+ * SlotNews so the card reads as part of the same family.
  */
 export function TopMoversList() {
   const { data, isLoading, isError, refetch } = useFeaturedTickers();
 
   return (
-    <div className="space-y-3">
-      <div>
-        <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          Featured companies
-        </h3>
-        <p className="mt-1 text-xs text-muted-foreground">
+    <>
+      <div className="bg-card-header border-b border-border p-4">
+        <h3 className="text-base font-semibold">Featured companies</h3>
+        <p className="mt-0.5 text-sm text-muted-foreground">
           Click a row to research a stock.
         </p>
       </div>
 
-      {isLoading && <MoversSkeleton rows={10} />}
+      <div className="p-4">
+        {isLoading && <MoversSkeleton rows={10} />}
 
-      {isError && (
-        <div className="space-y-2 py-2">
-          <p className="text-sm text-destructive">
-            Couldn't load featured tickers.
+        {isError && (
+          <div className="space-y-2 py-2">
+            <p className="text-sm text-destructive">
+              Couldn't load featured tickers.
+            </p>
+            <Button variant="outline" size="sm" onClick={() => refetch()}>
+              Retry
+            </Button>
+          </div>
+        )}
+
+        {!isLoading && !isError && (!data || data.length === 0) && (
+          <p className="py-4 text-sm text-muted-foreground">
+            No tickers available right now.
           </p>
-          <Button variant="outline" size="sm" onClick={() => refetch()}>
-            Retry
-          </Button>
-        </div>
-      )}
+        )}
 
-      {!isLoading && !isError && (!data || data.length === 0) && (
-        <p className="py-4 text-sm text-muted-foreground">
-          No tickers available right now.
-        </p>
-      )}
-
-      {!isLoading && !isError && data && data.length > 0 && (
-        <ul className="divide-y">
-          {data.slice(0, 10).map((snap: SnapshotTicker) => (
-            <MoverRow key={snap.ticker ?? Math.random()} snap={snap} />
-          ))}
-        </ul>
-      )}
-    </div>
+        {!isLoading && !isError && data && data.length > 0 && (
+          <ul className="divide-y">
+            {data.slice(0, 10).map((snap: SnapshotTicker) => (
+              <MoverRow key={snap.ticker ?? Math.random()} snap={snap} />
+            ))}
+          </ul>
+        )}
+      </div>
+    </>
   );
 }
 

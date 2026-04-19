@@ -2,8 +2,10 @@ import { useTickerSnapshot } from "@/hooks/useTickerSnapshot";
 import { formatCurrency, formatPercent } from "@/lib/format";
 
 /**
- * Exploration-mode identity band. Horizontal strip mirroring TickerHeader's
- * shape so the two modes feel symmetric. SPY serves as the S&P 500 proxy.
+ * Exploration-mode identity band. Mirrors TickerHeader's horizontal shape.
+ * The SPY snapshot sits in the corner as market context — the primary copy
+ * makes it clear this is a generic explore surface, not a dedicated
+ * S&P 500 page.
  */
 export function MarketHeader() {
   const { data: snapshot, isLoading } = useTickerSnapshot("SPY");
@@ -19,22 +21,27 @@ export function MarketHeader() {
 
   return (
     <div className="flex items-center justify-between gap-4">
-      <div className="flex min-w-0 items-baseline gap-3">
-        <h2 className="text-xl font-semibold">S&amp;P 500</h2>
-        <span className="shrink-0 font-mono text-sm text-muted-foreground">
-          SPY
-        </span>
-        <span className="hidden text-xs uppercase tracking-wide text-muted-foreground md:inline">
-          U.S. Equities
-        </span>
+      <div className="min-w-0">
+        <h2 className="text-xl font-semibold">Explore</h2>
+        <p className="mt-0.5 text-sm text-muted-foreground">
+          Browse new equities and track them in your watchlist!
+        </p>
       </div>
+
       {isLoading ? (
-        <div className="h-5 w-36 animate-pulse rounded bg-muted" />
+        <div className="h-12 w-36 shrink-0 animate-pulse rounded bg-muted" />
       ) : (
-        <div className="flex shrink-0 items-baseline gap-2 tabular-nums">
-          <span className="text-lg font-semibold">{formatCurrency(price)}</span>
-          <span className={`text-sm font-medium ${tone}`}>
-            {formatPercent(change)}
+        <div className="flex shrink-0 flex-col items-end">
+          <div className="flex items-baseline gap-2 tabular-nums">
+            <span className="text-lg font-semibold">
+              {formatCurrency(price)}
+            </span>
+            <span className={`text-sm font-medium ${tone}`}>
+              {formatPercent(change)}
+            </span>
+          </div>
+          <span className="mt-0.5 text-xs text-muted-foreground">
+            S&amp;P 500 close price
           </span>
         </div>
       )}

@@ -9,10 +9,10 @@ export function TickerNewsCard() {
         <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
           News · AAPL
         </div>
-        <div className="font-mono text-xs text-muted-foreground">3 headlines</div>
+        <div className="font-mono text-xs text-muted-foreground">5 headlines</div>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2.5">
         <Article
           title="Apple's services revenue hits record high in Q2"
           publisher="Reuters"
@@ -30,6 +30,18 @@ export function TickerNewsCard() {
           publisher="WSJ"
           time="yesterday"
           sentiment="negative"
+        />
+        <Article
+          title="Apple Intelligence features roll out in next software update"
+          publisher="TechCrunch"
+          time="2 days ago"
+          sentiment="positive"
+        />
+        <Article
+          title="Manufacturing shifts toward India gain momentum"
+          publisher="Financial Times"
+          time="3 days ago"
+          sentiment="neutral"
         />
       </div>
     </div>

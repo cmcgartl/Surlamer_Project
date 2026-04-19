@@ -16,7 +16,7 @@ export function SlotNews({ className = "" }: { className?: string }) {
 
   return (
     <Card className={`flex flex-col overflow-hidden p-0 ${className}`}>
-      <div className="border-b border-border p-4">
+      <div className="bg-card-header border-b border-border p-4">
         <h3 className="text-base font-semibold">{title}</h3>
       </div>
       <div className="p-4">

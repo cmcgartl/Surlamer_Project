@@ -25,21 +25,18 @@ export function Workbench() {
   const { ticker, setTicker } = useSelectedTicker();
 
   return (
-    <div className="flex min-h-screen flex-col bg-muted">
-      <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
-        <div className="mx-auto flex h-12 max-w-[1400px] items-center justify-between px-6">
+    <div className="bg-page-gradient flex min-h-screen flex-col">
+      <header className="bg-card-header sticky top-0 z-40 border-b border-border">
+        <div className="mx-auto flex h-14 max-w-[1400px] items-center px-6">
           <Link
             to="/"
-            className="flex items-center gap-1.5 text-sm font-semibold text-foreground hover:text-primary"
+            className="inline-flex items-center gap-2 rounded-md bg-primary px-3.5 py-2 text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            <span aria-hidden>←</span>
+            <span aria-hidden className="text-lg leading-none">
+              ←
+            </span>
             Home
           </Link>
-          {ticker && (
-            <span className="rounded-full bg-primary/10 px-2 py-0.5 font-mono text-[11px] uppercase tracking-wide text-primary">
-              {ticker}
-            </span>
-          )}
         </div>
       </header>
 
@@ -52,7 +49,6 @@ export function Workbench() {
           <div className="flex items-center gap-3">
             {ticker && (
               <Button
-                variant="outline"
                 size="sm"
                 onClick={() => setTicker(null)}
                 className="shrink-0"

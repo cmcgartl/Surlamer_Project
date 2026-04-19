@@ -10,7 +10,7 @@ export function Watchlist() {
 
   return (
     <Card className="flex h-full flex-col overflow-hidden p-0">
-      <div className="border-b border-border p-4">
+      <div className="bg-card-header border-b border-border p-4">
         <h2 className="text-base font-semibold">Your watchlist</h2>
         <p className="mt-0.5 text-xs text-muted-foreground">
           Keep track of your equities here.
@@ -19,7 +19,7 @@ export function Watchlist() {
 
       <div className="flex-1 overflow-y-auto p-2">
         {tickers.length === 0 ? (
-          <p className="p-2 text-xs leading-relaxed text-muted-foreground">
+          <p className="px-2 py-4 text-base font-semibold leading-relaxed text-muted-foreground">
             Your watchlist is empty. Add equities from the detail view to start
             tracking.
           </p>

@@ -14,7 +14,10 @@ import type { AggregateBar } from "@/services/schemas";
  * Exploration: SPY (S&P 500 ETF, used as a market proxy).
  * Research: the selected ticker.
  *
- * Range is hardcoded to "30d" here; swap to local state for the stretch goal
+ * Line + fill color follow the overall direction (first close vs last close):
+ * emerald when up, rose when down. Tremor handles axes + crosshair hover.
+ *
+ * Range is hardcoded to "30d"; swap to local state for the stretch goal
  * time-range selector (the hook is already parameterized).
  */
 export function SlotGraph({ className = "" }: { className?: string }) {
@@ -36,7 +39,7 @@ function Graph({ ticker, range }: { ticker: string; range: TimeRange }) {
 
   return (
     <>
-      <div className="flex items-center justify-between border-b border-border p-4">
+      <div className="bg-card-header flex items-center justify-between border-b border-border p-4">
         <h3 className="text-base font-semibold">Price</h3>
         <span className="font-mono text-xs text-muted-foreground">
           {ticker} · {range}
@@ -50,9 +53,7 @@ function Graph({ ticker, range }: { ticker: string; range: TimeRange }) {
 
         {isError && (
           <div className="space-y-2 py-4">
-            <p className="text-sm text-destructive">
-              Couldn't load chart data.
-            </p>
+            <p className="text-sm text-destructive">Couldn't load chart data.</p>
             <Button variant="outline" size="sm" onClick={() => refetch()}>
               Retry
             </Button>
@@ -64,20 +65,36 @@ function Graph({ ticker, range }: { ticker: string; range: TimeRange }) {
         )}
 
         {!isLoading && !isError && data && data.length >= 2 && (
-          <AreaChart
-            data={toChartData(data)}
-            index="date"
-            categories={["Close"]}
-            colors={["indigo"]}
-            valueFormatter={(v) => formatCurrency(v)}
-            showLegend={false}
-            showAnimation
-            yAxisWidth={64}
-            className="h-48"
-          />
+          <DirectionalChart bars={data} />
         )}
       </div>
     </>
+  );
+}
+
+function DirectionalChart({ bars }: { bars: AggregateBar[] }) {
+  const first = bars[0].c;
+  const last = bars[bars.length - 1].c;
+  const isUp = last >= first;
+  const color = isUp ? "emerald" : "rose";
+
+  const chartData = bars.map((bar) => ({
+    date: formatTick(bar.t),
+    Close: bar.c,
+  }));
+
+  return (
+    <AreaChart
+      data={chartData}
+      index="date"
+      categories={["Close"]}
+      colors={[color]}
+      valueFormatter={(v) => formatCurrency(v)}
+      showLegend={false}
+      showAnimation
+      yAxisWidth={96}
+      className="h-48"
+    />
   );
 }
 
@@ -104,13 +121,6 @@ function InsufficientDataFallback({
       )}
     </div>
   );
-}
-
-function toChartData(bars: AggregateBar[]) {
-  return bars.map((bar) => ({
-    date: formatTick(bar.t),
-    Close: bar.c,
-  }));
 }
 
 function formatTick(ms: number): string {

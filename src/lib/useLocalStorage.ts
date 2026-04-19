@@ -75,3 +75,28 @@ export function useLocalStorage<T>(key: string, initial: T) {
 
   return [value, setValue] as const;
 }
+
+/**
+ * Non-reactive write. Same pub-sub as useLocalStorage so all subscribed hooks
+ * in the current tab refresh. Use from side-effect code that shouldn't
+ * subscribe to the value itself (e.g., useSelectedTicker recording the latest
+ * ticker into recently-viewed without re-rendering on every list change).
+ */
+export function writeLocalStorage<T>(
+  key: string,
+  updater: T | ((prev: T | null) => T)
+) {
+  try {
+    const rawPrev = localStorage.getItem(key);
+    const prev = rawPrev == null ? null : (JSON.parse(rawPrev) as T);
+    const next =
+      typeof updater === "function"
+        ? (updater as (p: T | null) => T)(prev)
+        : updater;
+    const rawNext = JSON.stringify(next);
+    localStorage.setItem(key, rawNext);
+    notify(key, rawNext);
+  } catch {
+    /* quota exceeded or private mode — silent */
+  }
+}

@@ -13,12 +13,7 @@ export function FeatureGrid() {
           Everything on one surface
         </h2>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Tile
-            icon="✦"
-            title="Explain on demand"
-            description="Hover any financial term to see a plain-English definition. No tab-switching."
-          />
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Tile
             icon="⎙"
             title="Live market data"

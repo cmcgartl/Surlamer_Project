@@ -1,8 +1,6 @@
 /**
  * Hero carousel slide 1 — per-stock research preview.
  * Static mock content; this is a marketing surface, not live data.
- * Dotted underlines are where the Jargon tooltip component will attach
- * in a follow-up commit.
  */
 export function PerStockCard() {
   return (
@@ -25,10 +23,10 @@ export function PerStockCard() {
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-y-3 text-sm">
-        <Row label="Market cap" value="$2.97T" jargon />
-        <Row label="Volume" value="42.3M" jargon />
-        <Row label="Employees" value="164,000" />
-        <Row label="Listed" value="1980-12-12" />
+        <Row label="Market cap" value="$2.97T" />
+        <Row label="Volume" value="42.3M" />
+        <Row label="Day high" value="$190.05" />
+        <Row label="Day low" value="$186.10" />
       </div>
 
       <p className="mt-4 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
@@ -39,24 +37,10 @@ export function PerStockCard() {
   );
 }
 
-function Row({
-  label,
-  value,
-  jargon,
-}: {
-  label: string;
-  value: string;
-  jargon?: boolean;
-}) {
+function Row({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <span
-        className={`text-xs text-muted-foreground ${
-          jargon ? "border-b border-dotted border-muted-foreground/60" : ""
-        }`}
-      >
-        {label}
-      </span>
+      <span className="text-xs text-muted-foreground">{label}</span>
       <div className="mt-0.5 font-medium tabular-nums">{value}</div>
     </div>
   );

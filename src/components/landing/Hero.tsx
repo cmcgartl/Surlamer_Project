@@ -16,18 +16,13 @@ const CAROUSEL_ITEMS: CarouselItem[] = [
  */
 export function Hero() {
   return (
-    <section className="border-b border-border">
+    <section className="bg-page-gradient border-b border-border">
       <div className="mx-auto grid max-w-6xl gap-10 px-6 pt-16 pb-20 md:grid-cols-[1.1fr_1fr] md:items-center md:gap-16">
         <div className="space-y-6">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium text-primary">
-            <span className="size-1.5 rounded-full bg-primary" />
-            Plain English, built in
-          </span>
-
           <h1 className="text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">
-            Equity research,{" "}
+            Equity research{" "}
             <span className="text-gradient-accent">
-              without the jargon barrier.
+              Made Intuitive.
             </span>
           </h1>
 
@@ -46,7 +41,7 @@ export function Hero() {
           </div>
 
           <p className="text-xs text-muted-foreground">
-            Real-time market data · Sentiment-tagged news · No signup
+            Real-time market data · Per Equity News Tracking · Intuitive Layout
           </p>
         </div>
 

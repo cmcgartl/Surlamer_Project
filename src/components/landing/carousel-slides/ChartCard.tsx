@@ -1,72 +1,79 @@
+import { AreaChart } from "@tremor/react";
+import { useTickerAggregates } from "@/hooks/useTickerAggregates";
+import { formatCurrency } from "@/lib/format";
+
+const DEMO_TICKER = "AAPL";
+
 /**
- * Hero carousel slide 3 — chart preview. Inline SVG sparkline uses the primary
- * accent color directly so it pairs with the gradient headline.
+ * Hero carousel slide 3 — price history preview.
+ * Uses the same Tremor AreaChart + useTickerAggregates the workbench uses,
+ * so the marketing surface actually reflects the product. Fetches real 30d
+ * AAPL data (one extra call on landing load; Tanstack Query caches it for
+ * the workbench if the user clicks through).
  */
 export function ChartCard() {
-  const points = SYNTHETIC_POINTS;
-  const max = Math.max(...points);
-  const min = Math.min(...points);
-  const range = max - min || 1;
+  const { data: bars, isLoading, isError } = useTickerAggregates(
+    DEMO_TICKER,
+    "30d"
+  );
 
-  const w = 320;
-  const h = 120;
-  const stepX = w / (points.length - 1);
-  const path = points
-    .map((p, i) => {
-      const x = i * stepX;
-      const y = h - ((p - min) / range) * h;
-      return `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`;
-    })
-    .join(" ");
-  const fill = `${path} L${w},${h} L0,${h} Z`;
+  const hasData = !isLoading && !isError && bars && bars.length >= 2;
+  const first = hasData ? bars[0].c : null;
+  const last = hasData ? bars[bars.length - 1].c : null;
+  const isUp = hasData ? last! >= first! : true;
+  const pct = hasData ? ((last! - first!) / first!) * 100 : 0;
+  const color = isUp ? "emerald" : "rose";
+  const tone = isUp ? "text-positive" : "text-negative";
+
+  const chartData = hasData
+    ? bars.map((b) => ({
+        date: new Date(b.t).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+        }),
+        Close: b.c,
+      }))
+    : [];
 
   return (
     <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-      <div className="mb-4 flex items-start justify-between">
+      <div className="mb-3 flex items-start justify-between">
         <div>
           <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             Price · 30 days
           </div>
-          <div className="mt-0.5 font-semibold">AAPL</div>
+          <div className="mt-0.5 font-semibold">{DEMO_TICKER}</div>
         </div>
-        <div className="text-right">
-          <div className="text-lg font-semibold tabular-nums">$189.23</div>
-          <div className="text-xs text-positive tabular-nums">+3.4% mo.</div>
-        </div>
+        {hasData && (
+          <div className="text-right">
+            <div className="text-lg font-semibold tabular-nums">
+              {formatCurrency(last)}
+            </div>
+            <div className={`text-xs tabular-nums ${tone}`}>
+              {pct >= 0 ? "+" : ""}
+              {pct.toFixed(2)}% mo.
+            </div>
+          </div>
+        )}
       </div>
 
-      <svg
-        viewBox={`0 0 ${w} ${h}`}
-        className="h-32 w-full"
-        preserveAspectRatio="none"
-        aria-hidden
-      >
-        <defs>
-          <linearGradient id="spark-fill" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="#5B5BF0" stopOpacity="0.35" />
-            <stop offset="100%" stopColor="#5B5BF0" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        <path d={fill} fill="url(#spark-fill)" />
-        <path
-          d={path}
-          fill="none"
-          stroke="#5B5BF0"
-          strokeWidth="2"
-          strokeLinejoin="round"
-          strokeLinecap="round"
+      {!hasData && (
+        <div className="h-40 animate-pulse rounded bg-muted/60" />
+      )}
+
+      {hasData && (
+        <AreaChart
+          data={chartData}
+          index="date"
+          categories={["Close"]}
+          colors={[color]}
+          valueFormatter={(v) => formatCurrency(v)}
+          showLegend={false}
+          showAnimation
+          yAxisWidth={96}
+          className="h-40"
         />
-      </svg>
-
-      <div className="mt-3 flex justify-between font-mono text-[10px] text-muted-foreground">
-        <span>30d ago</span>
-        <span>today</span>
-      </div>
+      )}
     </div>
   );
 }
-
-const SYNTHETIC_POINTS = [
-  182, 183, 181, 184, 186, 185, 187, 188, 186, 184, 183, 185, 187, 188, 190,
-  189, 187, 186, 188, 189, 191, 190, 188, 189, 192, 191, 190, 188, 189, 189.23,
-];
