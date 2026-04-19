@@ -6,7 +6,7 @@ import {
   useTickerAggregates,
   type TimeRange,
 } from "@/hooks/useTickerAggregates";
-import { formatCurrency } from "@/lib/format";
+import { formatCurrency, formatDate } from "@/lib/format";
 import type { AggregateBar } from "@/services/schemas";
 
 /**
@@ -56,13 +56,11 @@ function Graph({ ticker, range }: { ticker: string; range: TimeRange }) {
         </div>
       )}
 
-      {!isLoading && !isError && data && data.length === 0 && (
-        <div className="flex h-48 items-center justify-center text-xs text-muted-foreground">
-          No price data for this range.
-        </div>
+      {!isLoading && !isError && data && data.length < 2 && (
+        <InsufficientDataFallback ticker={ticker} bars={data} />
       )}
 
-      {!isLoading && !isError && data && data.length > 0 && (
+      {!isLoading && !isError && data && data.length >= 2 && (
         <AreaChart
           data={toChartData(data)}
           index="date"
@@ -79,14 +77,39 @@ function Graph({ ticker, range }: { ticker: string; range: TimeRange }) {
   );
 }
 
+function InsufficientDataFallback({
+  ticker,
+  bars,
+}: {
+  ticker: string;
+  bars: AggregateBar[];
+}) {
+  const only = bars[0];
+  return (
+    <div className="flex h-48 flex-col items-center justify-center gap-1.5 rounded border border-dashed border-muted-foreground/20 p-4 text-center">
+      <p className="text-sm font-medium">Limited trading history</p>
+      <p className="text-xs text-muted-foreground">
+        {bars.length === 0
+          ? `No trading days for ${ticker} in the last 30 days.`
+          : `Only 1 day of data in the last 30 days — ${ticker} trades infrequently.`}
+      </p>
+      {only && (
+        <p className="mt-1 text-xs tabular-nums text-muted-foreground">
+          Last close: {formatCurrency(only.c)} on {formatDate(only.t)}
+        </p>
+      )}
+    </div>
+  );
+}
+
 function toChartData(bars: AggregateBar[]) {
   return bars.map((bar) => ({
-    date: formatDate(bar.t),
+    date: formatTick(bar.t),
     Close: bar.c,
   }));
 }
 
-function formatDate(ms: number): string {
+function formatTick(ms: number): string {
   const d = new Date(ms);
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
