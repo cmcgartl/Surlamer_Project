@@ -2,6 +2,11 @@ import { Button } from "@/components/ui/button";
 import { useSelectedTicker } from "@/hooks/useSelectedTicker";
 import { useFeaturedTickers } from "@/hooks/useFeaturedTickers";
 import { formatCurrency, formatPercent, formatVolume } from "@/lib/format";
+import {
+  snapshotChangePct,
+  snapshotPrice,
+  snapshotVolume,
+} from "@/lib/snapshot";
 import type { SnapshotTicker } from "@/services/schemas";
 
 /**
@@ -57,9 +62,9 @@ function MoverRow({ snap }: { snap: SnapshotTicker }) {
   const { setTicker } = useSelectedTicker();
   if (!snap.ticker) return null;
 
-  const price = snap.day?.c ?? snap.prevDay?.c;
-  const change = snap.todaysChangePerc;
-  const volume = snap.day?.v;
+  const price = snapshotPrice(snap);
+  const change = snapshotChangePct(snap);
+  const volume = snapshotVolume(snap);
   const tone =
     change == null
       ? "text-muted-foreground"

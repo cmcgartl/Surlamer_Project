@@ -1,5 +1,6 @@
 import { useTickerSnapshot } from "@/hooks/useTickerSnapshot";
 import { formatCurrency, formatPercent } from "@/lib/format";
+import { snapshotChangePct, snapshotPrice } from "@/lib/snapshot";
 
 /**
  * Exploration-mode identity band. Mirrors TickerHeader's horizontal shape.
@@ -10,8 +11,8 @@ import { formatCurrency, formatPercent } from "@/lib/format";
 export function MarketHeader() {
   const { data: snapshot, isLoading } = useTickerSnapshot("SPY");
 
-  const price = snapshot?.day?.c ?? snapshot?.prevDay?.c;
-  const change = snapshot?.todaysChangePerc;
+  const price = snapshotPrice(snapshot);
+  const change = snapshotChangePct(snapshot);
   const tone =
     change == null
       ? "text-muted-foreground"

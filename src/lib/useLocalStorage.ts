@@ -4,10 +4,9 @@ import { useCallback, useEffect, useState } from "react";
  * Reactive bridge to window.localStorage.
  * Acts like useState, but the value is mirrored to localStorage under the given key.
  *
- * Writes are broadcast to all useLocalStorage callers with the same key in the
- * current tab (tiny pub-sub below), so sibling components stay in sync without
- * a Context provider. The native `storage` event only fires cross-tab, not
- * same-tab, which is why the manual broadcast is needed.
+ * Same-tab sync uses a module-level pub-sub (the native `storage` event only
+ * fires cross-tab). Cross-tab sync uses the native `storage` event. Together,
+ * any write — in any tab — reaches every subscribed hook.
  */
 
 type Listener = (raw: string | null) => void;
@@ -48,9 +47,19 @@ export function useLocalStorage<T>(key: string, initial: T) {
   });
 
   useEffect(() => {
-    return subscribe(key, (raw) => setLocalValue(parse(raw, initial)));
+    const unsubscribe = subscribe(key, (raw) =>
+      setLocalValue(parse(raw, initial))
+    );
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== key) return;
+      setLocalValue(parse(e.newValue, initial));
+    };
+    window.addEventListener("storage", onStorage);
+    return () => {
+      unsubscribe();
+      window.removeEventListener("storage", onStorage);
+    };
     // `initial` is a fallback for malformed JSON; caller should pass a stable value.
-
   }, [key]);
 
   const setValue = useCallback(

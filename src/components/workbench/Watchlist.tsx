@@ -3,6 +3,7 @@ import { useSelectedTicker } from "@/hooks/useSelectedTicker";
 import { useTickerSnapshot } from "@/hooks/useTickerSnapshot";
 import { Card } from "@/components/ui/card";
 import { formatCurrency, formatPercent } from "@/lib/format";
+import { snapshotChangePct, snapshotPrice } from "@/lib/snapshot";
 
 export function Watchlist() {
   const { tickers, remove } = useWatchlist();
@@ -53,8 +54,8 @@ function WatchlistRow({
   onRemove: () => void;
 }) {
   const { data: snapshot } = useTickerSnapshot(ticker);
-  const price = snapshot?.day?.c ?? snapshot?.prevDay?.c;
-  const change = snapshot?.todaysChangePerc;
+  const price = snapshotPrice(snapshot);
+  const change = snapshotChangePct(snapshot);
   const tone =
     change == null
       ? "text-muted-foreground"

@@ -5,6 +5,11 @@ import { useRelatedTickers } from "@/hooks/useRelatedTickers";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { useTickerSnapshot } from "@/hooks/useTickerSnapshot";
 import { formatCurrency, formatPercent, formatVolume } from "@/lib/format";
+import {
+  snapshotChangePct,
+  snapshotPrice,
+  snapshotVolume,
+} from "@/lib/snapshot";
 import type { SnapshotTicker } from "@/services/schemas";
 
 /**
@@ -102,9 +107,9 @@ function TickerRow({ snap }: { snap: SnapshotTicker }) {
   const { setTicker } = useSelectedTicker();
   if (!snap.ticker) return null;
 
-  const price = snap.day?.c ?? snap.prevDay?.c;
-  const change = snap.todaysChangePerc;
-  const volume = snap.day?.v;
+  const price = snapshotPrice(snap);
+  const change = snapshotChangePct(snap);
+  const volume = snapshotVolume(snap);
   const tone =
     change == null
       ? "text-muted-foreground"

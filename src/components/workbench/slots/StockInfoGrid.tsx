@@ -3,10 +3,15 @@ import { useTickerDetails } from "@/hooks/useTickerDetails";
 import { useTickerSnapshot } from "@/hooks/useTickerSnapshot";
 import {
   formatCurrency,
-  formatNumber,
   formatPercent,
   formatVolume,
 } from "@/lib/format";
+import {
+  snapshotChange,
+  snapshotChangePct,
+  snapshotPrice,
+  snapshotVolume,
+} from "@/lib/snapshot";
 import type { SnapshotTicker, TickerDetail } from "@/services/schemas";
 
 /**
@@ -27,7 +32,7 @@ export function StockInfoGrid({ ticker }: { ticker: string }) {
 
   if (details.isLoading) {
     return (
-      <div className="p-4">
+      <div className="p-6">
         <InfoSkeleton />
       </div>
     );
@@ -35,7 +40,7 @@ export function StockInfoGrid({ ticker }: { ticker: string }) {
 
   if (details.isError) {
     return (
-      <div className="space-y-2 p-4">
+      <div className="space-y-2 p-6">
         <p className="text-sm text-destructive">
           Couldn't load details for {ticker}.
         </p>
@@ -49,7 +54,7 @@ export function StockInfoGrid({ ticker }: { ticker: string }) {
   if (!details.data) return null;
 
   return (
-    <div className="space-y-6 p-4">
+    <div className="space-y-7 p-6">
       <PriceBlock
         snapshot={snapshot.data ?? null}
         loading={snapshot.isLoading}
@@ -83,9 +88,9 @@ function PriceBlock({
   }
   if (!snapshot) return null;
 
-  const price = snapshot.day?.c ?? snapshot.prevDay?.c;
-  const change = snapshot.todaysChange;
-  const changePct = snapshot.todaysChangePerc;
+  const price = snapshotPrice(snapshot);
+  const change = snapshotChange(snapshot);
+  const changePct = snapshotChangePct(snapshot);
 
   const tone =
     change == null
@@ -104,7 +109,7 @@ function PriceBlock({
       <div className="text-4xl font-semibold tabular-nums">
         {formatCurrency(price)}
       </div>
-      <div className={`mt-1 text-sm font-medium tabular-nums ${tone}`}>
+      <div className={`mt-1.5 text-xl font-medium tabular-nums ${tone}`}>
         {changeStr} ({formatPercent(changePct)})
       </div>
     </div>
@@ -118,19 +123,22 @@ function TodaySection({
   snapshot: SnapshotTicker | null;
   loading: boolean;
 }) {
-  if (loading) return <GridSkeleton rows={3} />;
+  if (loading) return <GridSkeleton rows={1} />;
   if (!snapshot) return null;
 
-  const day = snapshot.day;
-  const prevClose = snapshot.prevDay?.c;
+  const marketClosed = !snapshot.day?.c;
+  const low = snapshot.day?.l || snapshot.prevDay?.l;
+  const high = snapshot.day?.h || snapshot.prevDay?.h;
+  const rangeValue =
+    low != null && high != null
+      ? `${formatCurrency(low)} – ${formatCurrency(high)}`
+      : "—";
+  const volume = snapshotVolume(snapshot);
 
   return (
-    <Section title="Today">
-      <Metric label="Open" value={formatCurrency(day?.o)} />
-      <Metric label="High" value={formatCurrency(day?.h)} />
-      <Metric label="Low" value={formatCurrency(day?.l)} />
-      <Metric label="Volume" value={formatVolume(day?.v)} />
-      <Metric label="Prev close" value={formatCurrency(prevClose)} />
+    <Section title={marketClosed ? "Most recent" : "Today"}>
+      <Metric label="Day range" value={rangeValue} />
+      <Metric label="Volume" value={formatVolume(volume)} />
     </Section>
   );
 }
@@ -143,7 +151,7 @@ function CompanySection({ detail }: { detail: TickerDetail }) {
         label="Shares out"
         value={formatVolume(detail.share_class_shares_outstanding)}
       />
-      <Metric label="Employees" value={formatNumber(detail.total_employees)} />
+      <Metric label="Sector" value={detail.sic_description ?? "—"} />
       <Metric label="Listed" value={detail.list_date ?? "—"} />
       <Metric label="Exchange" value={detail.primary_exchange ?? "—"} />
       <Metric label="Type" value={detail.type ?? "—"} />
@@ -172,18 +180,18 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="space-y-3">
-      <h3 className="text-base font-semibold">{title}</h3>
-      <div className="grid grid-cols-2 gap-x-6 gap-y-3">{children}</div>
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold">{title}</h3>
+      <div className="grid grid-cols-2 gap-x-6 gap-y-5">{children}</div>
     </div>
   );
 }
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div>
-      <div className="text-sm text-muted-foreground">{label}:</div>
-      <div className="font-medium tabular-nums">{value}</div>
+    <div className="space-y-1">
+      <div className="text-sm text-muted-foreground">{label}</div>
+      <div className="text-lg font-semibold tabular-nums">{value}</div>
     </div>
   );
 }
@@ -203,7 +211,7 @@ function InfoSkeleton() {
         <div className="h-10 w-40 bg-muted rounded animate-pulse" />
         <div className="h-5 w-32 bg-muted rounded animate-pulse" />
       </div>
-      <GridSkeleton rows={3} />
+      <GridSkeleton rows={1} />
       <GridSkeleton rows={3} />
     </div>
   );
@@ -211,13 +219,13 @@ function InfoSkeleton() {
 
 function GridSkeleton({ rows }: { rows: number }) {
   return (
-    <div className="space-y-2">
-      <div className="h-3 w-16 bg-muted rounded animate-pulse" />
-      <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+    <div className="space-y-3">
+      <div className="h-4 w-20 bg-muted rounded animate-pulse" />
+      <div className="grid grid-cols-2 gap-x-6 gap-y-5">
         {Array.from({ length: rows * 2 }).map((_, i) => (
           <div key={i} className="space-y-1">
-            <div className="h-3 w-20 bg-muted rounded animate-pulse" />
-            <div className="h-5 w-24 bg-muted rounded animate-pulse" />
+            <div className="h-4 w-20 bg-muted rounded animate-pulse" />
+            <div className="h-6 w-28 bg-muted rounded animate-pulse" />
           </div>
         ))}
       </div>

@@ -3,6 +3,11 @@ import { useState } from "react";
 import { useTickerNews } from "@/hooks/useTickerNews";
 import { useFeaturedTickers } from "@/hooks/useFeaturedTickers";
 import { formatCurrency, formatDate, formatPercent, formatVolume } from "@/lib/format";
+import {
+  snapshotChangePct,
+  snapshotPrice,
+  snapshotVolume,
+} from "@/lib/snapshot";
 import type { NewsArticle, SnapshotTicker } from "@/services/schemas";
 
 type Tab = "news" | "tickers";
@@ -157,9 +162,9 @@ function TickerRow({ snap }: { snap: SnapshotTicker }) {
   const ticker = snap.ticker;
   if (!ticker) return null;
 
-  const price = snap.day?.c ?? snap.prevDay?.c;
-  const volume = snap.day?.v;
-  const change = snap.todaysChangePerc;
+  const price = snapshotPrice(snap);
+  const volume = snapshotVolume(snap);
+  const change = snapshotChangePct(snap);
   const isUp = change != null && change >= 0;
   const tone =
     change == null
