@@ -1,28 +1,28 @@
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Footer } from "@/components/shared/Footer";
+import { Hero } from "@/components/landing/Hero";
+import { InsightsSection } from "@/components/landing/InsightsSection";
+import { FeatureGrid } from "@/components/landing/FeatureGrid";
+import { ClosingCTA } from "@/components/landing/ClosingCTA";
 
+/**
+ * Landing page composition.
+ *
+ * Deviations from landing.md (product-level choices, not architecture):
+ * - No site header — the app is two pages, so a dedicated nav is overhead.
+ *   CTAs in the hero and the closing block cover "get into the workbench."
+ * - No stats strip — the hero + live insights already do the proof work;
+ *   a stats band read as filler.
+ */
 export function Landing() {
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="border-b px-6 py-4">
-        <div className="max-w-5xl mx-auto">
-          <strong>Header</strong>
-        </div>
-      </header>
-
-      <main className="flex-1 flex items-center justify-center px-6">
-        <div className="max-w-2xl py-20 text-center space-y-6">
-          <h1 className="text-4xl font-bold tracking-tight">
-            Start Researching your stocks.
-          </h1>
-          <p className="text-lg text-muted-foreground">
-            Description here.
-          </p>
-          <Button asChild size="lg">
-            <Link to="/workbench">Open the workbench →</Link>
-          </Button>
-        </div>
+    <div className="flex min-h-screen flex-col">
+      <main className="flex-1">
+        <Hero />
+        <InsightsSection />
+        <FeatureGrid />
+        <ClosingCTA />
       </main>
+      <Footer />
     </div>
   );
 }
