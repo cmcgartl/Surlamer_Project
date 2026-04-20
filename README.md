@@ -1,5 +1,7 @@
 # Equity Research Workbench
 
+Demo Video: https://www.loom.com/share/e1c6f780b2a944348d901b025a71d964
+
 I made an equity research app that includes a landing page highlighting key features and a quick look into current stories and featured equities, as well as a workbench allowing users to browse, search, and track equities through an informative and intuitive layout. 
   
 **Stack:** React 19 · TypeScript · Vite · Tailwind CSS v4 · shadcn/ui · Tanstack Query · Zod · Tremor · Vitest
